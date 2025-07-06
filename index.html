@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Founder's Playbook: The Neural Interface</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --- Base & Font --- */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #020617; /* slate-950 */
+            overflow-x: hidden;
+        }
+
+        /* --- Custom Glow Effects & Animations --- */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(14, 165, 233, 0.4); }
+            50% { transform: scale(1.05); box-shadow: 0 0 20px 10px rgba(14, 165, 233, 0); }
+        }
+
+        @keyframes subtlePulse {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 1; }
+        }
+
+        /* --- UI Element Styling --- */
+        .glass-card {
+            background-color: rgba(15, 23, 42, 0.6); /* slate-900/60 */
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(51, 65, 85, 0.7); /* slate-700/70 */
+            transition: all 0.3s ease;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-8px);
+            background-color: rgba(30, 41, 59, 0.7); /* slate-800/70 */
+            border-color: rgba(100, 116, 139, 0.8); /* slate-500/80 */
+        }
+
+        .nav-button {
+            position: relative;
+            transition: all 0.3s ease;
+            color: #94a3b8; /* slate-400 */
+        }
+
+        .nav-button.active {
+            color: #e2e8f0; /* slate-200 */
+            background-color: rgba(14, 165, 233, 0.1); /* sky-500/10 */
+        }
+        
+        .nav-button.active .nav-icon {
+            color: #38bdf8; /* sky-400 */
+        }
+
+        .nav-button .nav-icon {
+             transition: all 0.3s ease;
+        }
+        
+        .nav-button:not(.active):hover {
+            color: #cbd5e1; /* slate-300 */
+            background-color: rgba(51, 65, 85, 0.3); /* slate-700/30 */
+        }
+        
+        .nav-button:not(.active):hover .nav-icon {
+            color: #7dd3fc; /* sky-300 */
+        }
+
+        .nav-button.active::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 60%;
+            background-color: #0ea5e9; /* sky-500 */
+            border-radius: 0 4px 4px 0;
+            box-shadow: 0 0 12px #0ea5e9;
+        }
+
+        .content-section {
+            display: none;
+            animation: fadeIn 0.8s ease-in-out;
+        }
+        
+        .content-section.active {
+            display: block;
+        }
+
+        /* Animate-on-scroll class */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease-out, transform 0.6s ease-out;
+        }
+
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        /* Thematic icon glow */
+        .icon-glow {
+            filter: drop-shadow(0 0 8px rgba(14, 165, 233, 0.5));
+        }
+        
+        .bullet-point-icon {
+            transition: all 0.3s ease;
+        }
+        .bullet-point:hover .bullet-point-icon {
+            color: #38bdf8; /* sky-400 */
+            transform: scale(1.2);
+            filter: drop-shadow(0 0 5px #38bdf8);
+        }
+    </style>
+</head>
+<body class="text-slate-300 antialiased">
+    <!-- Animated Background Canvas -->
+    <canvas id="neural-canvas" class="fixed top-0 left-0 w-full h-full -z-10"></canvas>
+
+    <div class="relative min-h-screen flex flex-col md:flex-row">
+        <!-- Sidebar Navigation -->
+        <aside class="w-full md:w-72 bg-slate-950/50 backdrop-blur-xl border-r border-slate-800/50 p-4 md:p-6 flex flex-col sticky top-0 md:relative z-20">
+            <div class="flex items-center gap-4 mb-10 reveal">
+                <!-- ZapIcon -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-10 h-10 text-sky-400 icon-glow"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
+                <div>
+                    <h1 class="text-2xl font-bold text-white tracking-tight">Founder's Playbook</h1>
+                    <p class="text-xs text-slate-400">Architecting Insight</p>
+                </div>
+            </div>
+            
+            <nav id="tabs-container" class="flex md:flex-col gap-2 reveal" style="transition-delay: 0.1s;">
+                <button data-tab="search" class="nav-button flex items-center gap-4 w-full text-left px-4 py-3 rounded-lg text-base font-medium">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="nav-icon w-6 h-6"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                    <span>The Search</span>
+                </button>
+                <button data-tab="creation" class="nav-button flex items-center gap-4 w-full text-left px-4 py-3 rounded-lg text-base font-medium">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="nav-icon w-6 h-6"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+                    <span>The Creation</span>
+                </button>
+                <button data-tab="evaluation" class="nav-button flex items-center gap-4 w-full text-left px-4 py-3 rounded-lg text-base font-medium">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="nav-icon w-6 h-6"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg>
+                    <span>The Evaluation</span>
+                </button>
+            </nav>
+            
+            <div class="hidden md:block mt-auto pt-8 border-t border-slate-800 reveal" style="transition-delay: 0.2s;">
+                <p class="text-xs text-slate-500">Venture Strategy & Mentorship</p>
+                <p class="text-xs text-slate-600 mt-1">© 2025. For Ambitious Founders.</p>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-6 md:p-10 lg:p-16 overflow-y-auto">
+            
+            <!-- Part 1: The Search -->
+            <div id="content-search" class="content-section">
+                <section>
+                    <!-- Section Title -->
+                    <div class="mb-12 reveal">
+                        <div class="flex items-center gap-4 mb-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-12 h-12 text-sky-400 icon-glow"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                            <h2 class="text-4xl md:text-5xl font-bold text-slate-100 tracking-tight">Part 1: The Search</h2>
+                        </div>
+                        <p class="text-slate-400 text-lg md:text-xl ml-16">A Strategic Framework for Discovering High-Potential Opportunities</p>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <div class="glass-card rounded-2xl p-8 reveal">
+                            <h3 class="text-xl font-semibold text-sky-400 mb-4 flex items-center gap-3">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6"><path d="M6 18h8"/><path d="M3 22h18"/><path d="M14 22a7 7 0 1 0 0-14h-1"/><path d="M9 14h2"/><path d="M9 12a2 2 0 0 1-2-2V6h6v4a2 2 0 0 1-2 2Z"/><path d="M12 6V3a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v3"/></svg>
+                                The "Problem-First" Mindset
+                            </h3>
+                            <p class="text-slate-300 mb-4">Shift from product-thinking to problem-sensing. The most valuable companies are built on deep, unarticulated needs. Your first job is not to have ideas, but to develop insight.</p>
+                        </div>
+                        
+                        <div class="glass-card rounded-2xl p-8 reveal" style="transition-delay: 0.1s;">
+                            <h3 class="text-xl font-semibold text-sky-400 mb-4">Exploring "Boring" & Underserved Niches</h3>
+                            <p class="text-slate-300 mb-4">Glamour is a trap. The most defensible businesses are often built in unsexy, infrastructure-heavy sectors where complexity is the moat.</p>
+                            <p class="text-slate-400 text-sm">Examples: Cold storage logistics, rural water management tech, hospital inventory software, legaltech for SMBs.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="glass-card rounded-2xl p-8 mt-8 reveal">
+                        <h3 class="text-xl font-semibold text-sky-400 mb-4 flex items-center gap-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6"><path d="M12 5a3 3 0 1 0-5.993.129"/><path d="M12 5a3 3 0 1 1 5.993.129"/><path d="M5 8.5A3.5 3.5 0 0 0 8.5 12h7a3.5 3.5 0 0 0 .129-6.993"/><path d="M5 8.5A3.5 3.5 0 0 1 8.5 5h7a3.5 3.5 0 0 1 .129 6.993"/><path d="M12 12a3 3 0 1 1-5.993-.129"/><path d="M12 12a3 3 0 1 0 5.993-.129"/><path d="M19 15.5a3.5 3.5 0 0 1-3.5-3.5h-7a3.5 3.5 0 0 1-.129 6.993"/><path d="M19 15.5a3.5 3.5 0 0 0-3.5-3.5h-7a3.5 3.5 0 0 0-.129 6.993"/><path d="M12 19a3 3 0 1 0-5.993-.129"/><path d="M12 19a3 3 0 1 1 5.993-.129"/><path d="M5.371 19.328a3.5 3.5 0 0 1 0-7.657"/><path d="M18.629 19.328a3.5 3.5 0 0 0 0-7.657"/></svg>
+                            Analyzing Macro-Trends: The 2025 India Lens
+                        </h3>
+                        <p class="text-slate-300 mb-6">Ideas don't exist in a vacuum. They derive power from intersecting with powerful tailwinds. Here’s how to analyze the Indian landscape:</p>
+                        <div class="grid md:grid-cols-2 gap-x-8 gap-y-6">
+                            <div>
+                                <h4 class="font-semibold text-slate-200 mb-2">Demographic Shifts</h4>
+                                <p class="text-slate-400 text-sm">Services for an aging population, Gen Z consumer patterns, fintech for women, hyper-local services for Tier 2/3 cities.</p>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-slate-200 mb-2">Technological Advancements</h4>
+                                <p class="text-slate-400 text-sm">AI/ML for agri-tech, computer vision for manufacturing QC, blockchain for SMB lending transparency.</p>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-slate-200 mb-2">Regulatory & Policy Changes</h4>
+                                <p class="text-slate-400 text-sm">The India Stack (ONDC, DPDP) is a goldmine. Explore green energy, PLI schemes, and EV infrastructure.</p>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-slate-200 mb-2">Socio-Cultural Shifts</h4>
+                                <p class="text-slate-400 text-sm">Gig economy platforms, mental wellness solutions, preference for ethical, local, and vernacular-first technology.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="glass-card rounded-2xl p-8 mt-8 reveal">
+                        <h3 class="text-xl font-semibold text-sky-400 mb-4">Deconstructing Industry Value Chains</h3>
+                        <p class="text-slate-300 mb-4">A step-by-step playbook to find the weak link where you can create disproportionate value.</p>
+                        <div class="space-y-4">
+                            <div class="flex items-start gap-4 p-3 rounded-lg bullet-point">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 text-slate-500 mt-1 flex-shrink-0 bullet-point-icon"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+                                <div><strong class="text-slate-200">1. Map the Layers:</strong> Whiteboard the entire journey from raw material to end consumer. Identify all players.</div>
+                            </div>
+                            <div class="flex items-start gap-4 p-3 rounded-lg bullet-point">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 text-slate-500 mt-1 flex-shrink-0 bullet-point-icon"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+                                <div><strong class="text-slate-200">2. Identify Value Leaks:</strong> Where does value get lost? Look for high markups, information asymmetry, delays, and coordination failures.</div>
+                            </div>
+                            <div class="flex items-start gap-4 p-3 rounded-lg bullet-point">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 text-slate-500 mt-1 flex-shrink-0 bullet-point-icon"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+                                <div><strong class="text-slate-200">3. Spot Intervention Points:</strong> Where could a platform or technology create a 10x improvement? This is your entry point.</div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+            
+            <!-- Part 2: The Creation -->
+            <div id="content-creation" class="content-section">
+                <section>
+                    <!-- Section Title -->
+                    <div class="mb-12 reveal">
+                        <div class="flex items-center gap-4 mb-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-12 h-12 text-sky-400 icon-glow"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+                            <h2 class="text-4xl md:text-5xl font-bold text-slate-100 tracking-tight">Part 2: The Creation</h2>
+                        </div>
+                        <p class="text-slate-400 text-lg md:text-xl ml-16">Architecting a Defensible and Disruptive Business Model</p>
+                    </div>
+
+                    <div class="glass-card rounded-2xl p-8 reveal">
+                        <h3 class="text-xl font-semibold text-sky-400 mb-4">Crafting a Sharp Value Proposition</h3>
+                        <p class="text-slate-300 mb-4">This is the core of your pitch. It must be clear, concise, and outcome-oriented. Use this formula as your starting point:</p>
+                        <div class="my-6 p-6 border-l-4 border-sky-400 bg-slate-900/70 rounded-r-lg">
+                            <p class="text-slate-200 italic text-lg md:text-xl">
+                                "We help <span class="text-sky-300 font-semibold">[target customer]</span> achieve <span class="text-sky-300 font-semibold">[desired outcome]</span> by solving <span class="text-sky-300 font-semibold">[pain point]</span> in a <span class="text-sky-300 font-semibold">[differentiated]</span> way."
+                            </p>
+                        </div>
+                        <p class="text-slate-400">Focus on tangible results, not features. Instead of "We sell an AI-powered analytics dashboard," try "We help D2C brands reduce customer acquisition costs by 30% by identifying their most profitable audiences automatically."</p>
+                    </div>
+
+                    <div class="glass-card rounded-2xl p-8 mt-8 reveal">
+                        <h3 class="text-xl font-semibold text-sky-400 mb-4">Applying Blue Ocean Strategy</h3>
+                        <p class="text-slate-300 mb-4">Stop competing. Create uncontested market space. Blue Ocean Strategy is about value innovation—making the competition irrelevant by creating a leap in value for buyers and your company.</p>
+                        <div class="bg-slate-900/50 border border-slate-700 rounded-xl p-6 my-6">
+                            <h4 class="font-bold text-center text-slate-200 text-lg mb-4">The ERRC Grid</h4>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                                <div>
+                                    <p class="font-semibold text-red-400">Eliminate</p>
+                                    <p class="text-slate-400 text-sm">Factors the industry takes for granted.</p>
+                                </div>
+                                <div>
+                                    <p class="font-semibold text-yellow-400">Reduce</p>
+                                    <p class="text-slate-400 text-sm">Factors below the industry standard.</p>
+                                </div>
+                                <div>
+                                    <p class="font-semibold text-green-400">Raise</p>
+                                    <p class="text-slate-400 text-sm">Factors above the industry standard.</p>
+                                </div>
+                                <div>
+                                    <p class="font-semibold text-blue-400">Create</p>
+                                    <p class="text-slate-400 text-sm">Factors the industry has never offered.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+            
+            <!-- Part 3: The Evaluation -->
+            <div id="content-evaluation" class="content-section">
+                <section>
+                    <!-- Section Title -->
+                    <div class="mb-12 reveal">
+                        <div class="flex items-center gap-4 mb-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-12 h-12 text-sky-400 icon-glow"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg>
+                            <h2 class="text-4xl md:text-5xl font-bold text-slate-100 tracking-tight">Part 3: The Evaluation</h2>
+                        </div>
+                        <p class="text-slate-400 text-lg md:text-xl ml-16">A Brutally Honest Gauntlet for Your Idea</p>
+                    </div>
+
+                    <div class="glass-card rounded-2xl p-8 reveal">
+                        <h3 class="text-xl font-semibold text-sky-400 mb-4">Evaluation Matrix</h3>
+                        <p class="text-slate-300 mb-6">Use this matrix as a thinking tool, not a checklist. Be brutally honest. The goal is to find fatal flaws before you write a single line of code.</p>
+                        <div class="space-y-6">
+                            <div class="p-4 border border-slate-700 rounded-lg bg-slate-900/40">
+                                <h4 class="font-semibold text-slate-200">Long-Term Viability</h4>
+                                <p class="text-slate-400 mt-2 text-sm md:text-base">Can this scale nationally? Can network effects emerge? Is there a defensible moat (data, habit, infra, IP)?</p>
+                            </div>
+                            <div class="p-4 border border-slate-700 rounded-lg bg-slate-900/40">
+                                <h4 class="font-semibold text-slate-200">Power & Effectiveness</h4>
+                                <p class="text-slate-400 mt-2 text-sm md:text-base">Is this a painkiller or a vitamin? What’s the intensity of need? Is the TAM large enough?</p>
+                            </div>
+                             <div class="p-4 border border-slate-700 rounded-lg bg-slate-900/40">
+                                <h4 class="font-semibold text-slate-200">Realism</h4>
+                                <p class="text-slate-400 mt-2 text-sm md:text-base">Can this be built with available skills and capital? Are timing and policy on our side?</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="glass-card rounded-2xl p-8 mt-8 reveal">
+                        <h3 class="text-xl font-semibold text-sky-400 mb-4">💀 Pre-Mortem Analysis</h3>
+                        <p class="text-slate-300 mb-4">A powerful exercise in critical thinking. Ask your team: “Imagine it's one year from now. We launched, and it failed spectacularly. What went wrong?”</p>
+                        <p class="text-slate-400">This reframes the discussion from optimistic selling to pragmatic problem-finding. It forces you to confront uncomfortable truths.</p>
+                    </div>
+                </section>
+            </div>
+            
+            <!-- Conclusion -->
+            <footer class="mt-20 text-center border-t border-slate-800 pt-16 pb-8 reveal">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-16 h-16 text-sky-400 mx-auto mb-6 icon-glow" style="animation: subtlePulse 3s infinite ease-in-out;"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
+                <h2 class="text-4xl font-bold text-slate-100">From Insight to Execution</h2>
+                <p class="text-slate-400 max-w-3xl mx-auto mt-4 text-lg">
+                    This is not a game of inspiration. It’s a game of structured insight, rigorous filtering, and relentless execution.
+                </p>
+                <blockquote class="mt-10 max-w-2xl mx-auto p-4 border-l-4 border-sky-500 bg-slate-900/60 rounded-r-lg">
+                    <p class="text-xl italic text-slate-200">
+                        The strongest companies don’t start with the best idea. They start with the most insightfully understood problem.
+                    </p>
+                </blockquote>
+            </footer>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // --- Tab Navigation Logic ---
+            const tabs = document.querySelectorAll('.nav-button');
+            const contentSections = document.querySelectorAll('.content-section');
+
+            function switchTab(tabId) {
+                tabs.forEach(tab => {
+                    tab.classList.toggle('active', tab.dataset.tab === tabId);
+                });
+                contentSections.forEach(section => {
+                    section.classList.toggle('active', section.id === `content-${tabId}`);
+                });
+            }
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    switchTab(tab.dataset.tab);
+                });
+            });
+            switchTab('search'); // Set initial tab
+
+            // --- Animate on Scroll Logic ---
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            document.querySelectorAll('.reveal').forEach(el => {
+                observer.observe(el);
+            });
+
+            // --- Animated Neural Network Background ---
+            const canvas = document.getElementById('neural-canvas');
+            const ctx = canvas.getContext('2d');
+            let particles = [];
+            let mouse = { x: null, y: null, radius: 150 };
+
+            function resizeCanvas() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas();
+
+            window.addEventListener('mousemove', (event) => {
+                mouse.x = event.x;
+                mouse.y = event.y;
+            });
+             window.addEventListener('mouseout', () => {
+                mouse.x = null;
+                mouse.y = null;
+            });
+
+            class Particle {
+                constructor(x, y, directionX, directionY, size, color) {
+                    this.x = x;
+                    this.y = y;
+                    this.directionX = directionX;
+                    this.directionY = directionY;
+                    this.size = size;
+                    this.color = color;
+                }
+                draw() {
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2, false);
+                    ctx.fillStyle = this.color;
+                    ctx.fill();
+                }
+                update() {
+                    if (this.x > canvas.width || this.x < 0) this.directionX = -this.directionX;
+                    if (this.y > canvas.height || this.y < 0) this.directionY = -this.directionY;
+                    
+                    // Mouse interaction
+                    let dx = mouse.x - this.x;
+                    let dy = mouse.y - this.y;
+                    let distance = Math.sqrt(dx*dx + dy*dy);
+                    if (distance < mouse.radius) {
+                        this.x -= this.directionX * 2;
+                        this.y -= this.directionY * 2;
+                    } else {
+                         this.x += this.directionX;
+                         this.y += this.directionY;
+                    }
+
+                    this.draw();
+                }
+            }
+
+            function initParticles() {
+                particles = [];
+                let numberOfParticles = (canvas.height * canvas.width) / 9000;
+                for (let i = 0; i < numberOfParticles; i++) {
+                    let size = Math.random() * 1.5 + 0.5;
+                    let x = Math.random() * (innerWidth - size * 2) + size;
+                    let y = Math.random() * (innerHeight - size * 2) + size;
+                    let directionX = (Math.random() * 0.4) - 0.2;
+                    let directionY = (Math.random() * 0.4) - 0.2;
+                    let color = 'rgba(14, 165, 233, 0.5)'; // sky-500
+                    particles.push(new Particle(x, y, directionX, directionY, size, color));
+                }
+            }
+
+            function connectParticles() {
+                let opacityValue = 1;
+                for (let a = 0; a < particles.length; a++) {
+                    for (let b = a; b < particles.length; b++) {
+                        let distance = ((particles[a].x - particles[b].x) * (particles[a].x - particles[b].x))
+                                     + ((particles[a].y - particles[b].y) * (particles[a].y - particles[b].y));
+                        if (distance < (canvas.width / 7) * (canvas.height / 7)) {
+                            opacityValue = 1 - (distance / 20000);
+                            ctx.strokeStyle = `rgba(14, 165, 233, ${opacityValue * 0.3})`;
+                            ctx.lineWidth = 0.5;
+                            ctx.beginPath();
+                            ctx.moveTo(particles[a].x, particles[a].y);
+                            ctx.lineTo(particles[b].x, particles[b].y);
+                            ctx.stroke();
+                        }
+                    }
+                }
+            }
+
+            function animate() {
+                requestAnimationFrame(animate);
+                ctx.clearRect(0, 0, innerWidth, innerHeight);
+                for (let i = 0; i < particles.length; i++) {
+                    particles[i].update();
+                }
+                connectParticles();
+            }
+
+            initParticles();
+            animate();
+        });
+    </script>
+</body>
+</html>
